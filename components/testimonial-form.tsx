@@ -3,8 +3,12 @@
 import { useState } from 'react'
 import { Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { reviewApi } from '@/lib/api'
+import { useToast } from '@/hooks/use-toast'
+import GalleryPopup from '@/components/gallery-popup'
 
 export default function TestimonialForm() {
+  const { toast } = useToast()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,17 +16,48 @@ export default function TestimonialForm() {
     rating: 5,
     message: '',
   })
-  const [submitted, setSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [showGalleryPopup, setShowGalleryPopup] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
-    // In production, this would send data to a server
-    setSubmitted(true)
-    setTimeout(() => {
-      setFormData({ name: '', email: '', location: '', rating: 5, message: '' })
-      setSubmitted(false)
-    }, 3000)
+    setIsLoading(true)
+
+    try {
+      const result = await reviewApi.create({
+        fullName: formData.name,
+        email: formData.email,
+        location: formData.location,
+        review: formData.message,
+        rating: formData.rating,
+      })
+
+      if (result.success) {
+        toast({
+          title: 'Review Submitted Successfully!',
+          description: 'Thank you for your review! It will be published after approval.',
+        })
+        setFormData({ name: '', email: '', location: '', rating: 5, message: '' })
+        // Show gallery popup after a short delay
+        setTimeout(() => {
+          setShowGalleryPopup(true)
+        }, 1000)
+      } else {
+        toast({
+          title: 'Failed to Submit Review',
+          description: result.error || 'Please try again later.',
+          variant: 'destructive',
+        })
+      }
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -32,13 +67,7 @@ export default function TestimonialForm() {
         We'd love to hear about your stay at Daraghar Maila. Your feedback helps us improve and helps other travelers discover us!
       </p>
 
-      {submitted ? (
-        <div className="bg-primary/10 border border-primary/30 rounded-lg p-6 text-center">
-          <p className="text-primary font-semibold text-lg">Thank you for your review!</p>
-          <p className="text-muted-foreground mt-2">We appreciate your feedback and will feature it soon.</p>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name and Email */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -129,11 +158,13 @@ export default function TestimonialForm() {
             type="submit"
             size="lg"
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
+            disabled={isLoading}
           >
-            Submit Your Review
+            {isLoading ? 'Submitting...' : 'Submit Your Review'}
           </Button>
         </form>
-      )}
+      
+      <GalleryPopup open={showGalleryPopup} onOpenChange={setShowGalleryPopup} />
     </div>
   )
 }

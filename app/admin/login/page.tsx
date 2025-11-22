@@ -7,9 +7,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react'
+import { adminApi } from '@/lib/api'
+import { useToast } from '@/hooks/use-toast'
 
 export default function AdminLoginPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -21,29 +24,42 @@ export default function AdminLoginPage() {
     setError('')
     setIsLoading(true)
 
-    // In production, this would make an API call to authenticate
-    // For now, using mock credentials for demo
-    const mockCredentials = {
-      email: 'admin@daragharmaila.com',
-      password: 'admin123',
-    }
+    try {
+      const result = await adminApi.login(email, password)
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+      if (result.success) {
+        // Store authentication state
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('admin_authenticated', 'true')
+          localStorage.setItem('admin_email', email)
+        }
 
-    if (email === mockCredentials.email && password === mockCredentials.password) {
-      // Store authentication token/state
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('admin_authenticated', 'true')
-        localStorage.setItem('admin_email', email)
+        toast({
+          title: 'Login Successful',
+          description: 'Welcome back! Redirecting to admin dashboard...',
+        })
+
+        // Redirect to admin dashboard
+        setTimeout(() => {
+          window.location.href = '/admin'
+        }, 500)
+      } else {
+        setError(result.error || 'Invalid email or password. Please try again.')
+        setIsLoading(false)
+        toast({
+          title: 'Login Failed',
+          description: result.error || 'Invalid email or password. Please try again.',
+          variant: 'destructive',
+        })
       }
-      
-      // Redirect to admin dashboard
-      // The layout will detect the auth state change automatically
-      window.location.href = '/admin'
-    } else {
-      setError('Invalid email or password. Please try again.')
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive',
+      })
     }
   }
 
@@ -126,13 +142,7 @@ export default function AdminLoginPage() {
                   />
                   <span className="text-muted-foreground">Remember me</span>
                 </label>
-                <button
-                  type="button"
-                  className="text-primary hover:underline"
-                  disabled={isLoading}
-                >
-                  Forgot password?
-                </button>
+               
               </div>
 
               <Button
@@ -145,13 +155,7 @@ export default function AdminLoginPage() {
             </form>
 
             {/* Demo Credentials Info */}
-            <div className="mt-6 p-4 rounded-lg bg-muted/50 border border-border">
-              <p className="text-xs font-medium text-muted-foreground mb-2">Demo Credentials:</p>
-              <div className="text-xs space-y-1 text-muted-foreground">
-                <p>Email: admin@daragharmaila.com</p>
-                <p>Password: admin123</p>
-              </div>
-            </div>
+         
           </CardContent>
         </Card>
 

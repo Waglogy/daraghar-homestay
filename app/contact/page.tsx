@@ -7,24 +7,69 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { MapPin, Phone, Mail, Clock } from 'lucide-react'
 import { useState } from 'react'
+import { contactApi } from '@/lib/api'
+import { useToast } from '@/hooks/use-toast'
+import GalleryPopup from '@/components/gallery-popup'
 
 export default function ContactPage() {
+  const { toast } = useToast()
   const [contactForm, setContactForm] = useState({
     name: '',
     email: '',
     subject: '',
     message: '',
   })
+  const [isLoading, setIsLoading] = useState(false)
+  const [showGalleryPopup, setShowGalleryPopup] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setContactForm(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    alert('Message sent! We will get back to you soon.')
-    console.log('Contact form:', contactForm)
+    setIsLoading(true)
+
+    try {
+      const result = await contactApi.create({
+        fullName: contactForm.name,
+        email: contactForm.email,
+        subject: contactForm.subject,
+        message: contactForm.message,
+      })
+
+      if (result.success) {
+        toast({
+          title: 'Message Sent Successfully!',
+          description: 'We have received your message and will get back to you soon.',
+        })
+        setContactForm({
+          name: '',
+          email: '',
+          subject: '',
+          message: '',
+        })
+        // Show gallery popup after a short delay
+        setTimeout(() => {
+          setShowGalleryPopup(true)
+        }, 1000)
+      } else {
+        toast({
+          title: 'Failed to Send Message',
+          description: result.error || 'Please try again later.',
+          variant: 'destructive',
+        })
+      }
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -153,8 +198,12 @@ export default function ContactPage() {
                         placeholder="Your message here..."
                       />
                     </div>
-                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-base font-semibold">
-                      Send Message
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-base font-semibold"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'Sending...' : 'Send Message'}
                     </Button>
                   </form>
                 </CardContent>
@@ -165,6 +214,8 @@ export default function ContactPage() {
       </div>
 
       <Footer />
+      
+      <GalleryPopup open={showGalleryPopup} onOpenChange={setShowGalleryPopup} />
     </main>
   )
 }

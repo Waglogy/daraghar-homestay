@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,72 +21,34 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Search, Plus, Eye, Calendar, CreditCard, Filter } from 'lucide-react'
+import { Search, Plus, Eye, Calendar, CreditCard, Loader2 } from 'lucide-react'
+import { paymentApi } from '@/lib/api'
+import { useToast } from '@/hooks/use-toast'
 
-// Mock data - in production this would come from an API
-const payments = [
-  {
-    id: 'PAY001',
-    bookingId: 'BK001',
-    guestName: 'Priya Sharma',
-    amount: 19500,
-    date: '2024-12-01',
-    method: 'UPI',
-    status: 'completed',
-    reference: 'UPI123456789',
-    description: 'Payment for Luxury Glamping Tent - 3 nights',
-  },
-  {
-    id: 'PAY002',
-    bookingId: 'BK002',
-    guestName: 'Rajesh Kumar',
-    amount: 10500,
-    date: '2024-12-02',
-    method: 'Bank Transfer',
-    status: 'pending',
-    reference: 'BT987654321',
-    description: 'Payment for Authentic Homestay - 3 nights',
-  },
-  {
-    id: 'PAY003',
-    bookingId: 'BK003',
-    guestName: 'Anjali Patel',
-    amount: 15000,
-    date: '2024-12-03',
-    method: 'Cash',
-    status: 'completed',
-    reference: 'CASH-2024-12-03',
-    description: 'Payment for Mountain Wellness Pod - 3 nights',
-  },
-  {
-    id: 'PAY004',
-    bookingId: 'BK004',
-    guestName: 'Vikram Singh',
-    amount: 19500,
-    date: '2024-12-04',
-    method: 'Credit Card',
-    status: 'completed',
-    reference: 'CC456789123',
-    description: 'Payment for Luxury Glamping Tent - 3 nights',
-  },
-  {
-    id: 'PAY005',
-    bookingId: 'BK005',
-    guestName: 'Maya Desai',
-    amount: 7000,
-    date: '2024-11-28',
-    method: 'UPI',
-    status: 'completed',
-    reference: 'UPI987654321',
-    description: 'Payment for Authentic Homestay - 2 nights',
-  },
-]
+interface Payment {
+  id: string
+  bookingId: string
+  guestName: string
+  amount: number
+  paymentDate?: string
+  date?: string
+  paymentMethod?: string
+  method?: string
+  status: string
+  referenceTransactionId?: string
+  reference?: string
+  description?: string
+}
 
 export default function PaymentsPage() {
+  const { toast } = useToast()
+  const [payments, setPayments] = useState<Payment[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'completed' | 'pending'>('all')
-  const [selectedPayment, setSelectedPayment] = useState<typeof payments[0] | null>(null)
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [newPayment, setNewPayment] = useState({
     bookingId: '',
     guestName: '',
@@ -96,6 +58,55 @@ export default function PaymentsPage() {
     reference: '',
     description: '',
   })
+  const [submitLoading, setSubmitLoading] = useState(false)
+
+  useEffect(() => {
+    fetchPayments()
+  }, [filterStatus])
+
+  const fetchPayments = async () => {
+    try {
+      setIsLoading(true)
+      const status = filterStatus === 'all' ? undefined : filterStatus
+      const result = await paymentApi.getAll({ status, page: 1, limit: 100 })
+      
+      if (result.success && result.data) {
+        const paymentsData = Array.isArray(result.data) ? result.data : result.data.payments || []
+        setPayments(paymentsData.map((payment: any) => {
+          // Handle bookingId - it might be an object (populated) or a string
+          let bookingId = ''
+          if (payment.bookingId) {
+            if (typeof payment.bookingId === 'object') {
+              // If it's an object, try to get the ID or bookingReference
+              bookingId = payment.bookingId.bookingReference || payment.bookingId.id || payment.bookingId._id || ''
+            } else {
+              bookingId = payment.bookingId
+            }
+          }
+
+          return {
+            id: payment.id || payment._id,
+            bookingId: bookingId,
+            guestName: payment.guestName || '',
+            amount: payment.amount || 0,
+            date: payment.paymentDate || payment.date || '',
+            method: payment.paymentMethod || payment.method || '',
+            status: payment.status || 'pending',
+            reference: payment.referenceTransactionId || payment.reference || '',
+            description: payment.description || '',
+          }
+        }))
+      }
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch payments. Please try again.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -107,11 +118,10 @@ export default function PaymentsPage() {
 
   const filteredPayments = payments.filter((payment) => {
     const matchesSearch =
-      payment.guestName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      payment.bookingId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      payment.id.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = filterStatus === 'all' || payment.status === filterStatus
-    return matchesSearch && matchesStatus
+      (payment.guestName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (payment.bookingId || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (payment.id || '').toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesSearch
   })
 
   const totalRevenue = payments
@@ -129,19 +139,94 @@ export default function PaymentsPage() {
     return <Badge className="bg-yellow-500/20 text-yellow-700 dark:text-yellow-400">Pending</Badge>
   }
 
-  const handleAddPayment = () => {
-    // In production, this would make an API call
-    alert('Payment would be added here')
-    setIsAddDialogOpen(false)
-    setNewPayment({
-      bookingId: '',
-      guestName: '',
-      amount: '',
-      date: '',
-      method: 'UPI',
-      reference: '',
-      description: '',
-    })
+  const handleAddPayment = async () => {
+    if (!newPayment.bookingId || !newPayment.guestName || !newPayment.amount || !newPayment.date) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please fill in all required fields.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setSubmitLoading(true)
+    try {
+      const result = await paymentApi.create({
+        bookingId: newPayment.bookingId,
+        guestName: newPayment.guestName,
+        amount: parseFloat(newPayment.amount),
+        paymentDate: newPayment.date,
+        paymentMethod: newPayment.method,
+        referenceTransactionId: newPayment.reference || undefined,
+        description: newPayment.description || undefined,
+        status: 'completed',
+      })
+
+      if (result.success) {
+        toast({
+          title: 'Payment Recorded',
+          description: 'Payment has been recorded successfully.',
+        })
+        setIsAddDialogOpen(false)
+        setNewPayment({
+          bookingId: '',
+          guestName: '',
+          amount: '',
+          date: '',
+          method: 'UPI',
+          reference: '',
+          description: '',
+        })
+        fetchPayments()
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to record payment.',
+          variant: 'destructive',
+        })
+      }
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      })
+    } finally {
+      setSubmitLoading(false)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this payment record?')) return
+    
+    setActionLoading(id)
+    try {
+      const result = await paymentApi.delete(id)
+      if (result.success) {
+        toast({
+          title: 'Payment Deleted',
+          description: 'The payment record has been deleted successfully.',
+        })
+        fetchPayments()
+        if (selectedPayment?.id === id) {
+          setSelectedPayment(null)
+        }
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to delete payment.',
+          variant: 'destructive',
+        })
+      }
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      })
+    } finally {
+      setActionLoading(null)
+    }
   }
 
   return (
@@ -229,11 +314,18 @@ export default function PaymentsPage() {
                 />
               </div>
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="flex-1">
+                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="flex-1" disabled={submitLoading}>
                   Cancel
                 </Button>
-                <Button onClick={handleAddPayment} className="flex-1">
-                  Add Payment
+                <Button onClick={handleAddPayment} className="flex-1" disabled={submitLoading}>
+                  {submitLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Recording...
+                    </>
+                  ) : (
+                    'Add Payment'
+                  )}
                 </Button>
               </div>
             </div>
@@ -328,114 +420,136 @@ export default function PaymentsPage() {
           <CardDescription>Complete list of all payment transactions</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border border-border overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Payment ID</TableHead>
-                  <TableHead>Booking ID</TableHead>
-                  <TableHead>Guest Name</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Method</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredPayments.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className="rounded-md border border-border overflow-hidden">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                      No payments found
-                    </TableCell>
+                    <TableHead>Payment ID</TableHead>
+                    <TableHead>Booking ID</TableHead>
+                    <TableHead>Guest Name</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Method</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ) : (
-                  filteredPayments.map((payment) => (
-                    <TableRow key={payment.id} className="hover:bg-muted/50">
-                      <TableCell className="font-medium">{payment.id}</TableCell>
-                      <TableCell>{payment.bookingId}</TableCell>
-                      <TableCell className="font-medium">{payment.guestName}</TableCell>
-                      <TableCell className="font-semibold">{formatCurrency(payment.amount)}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-sm">
-                          <Calendar className="h-3 w-3 text-muted-foreground" />
-                          {payment.date}
-                        </div>
-                      </TableCell>
-                      <TableCell>{payment.method}</TableCell>
-                      <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                      <TableCell className="text-right">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setSelectedPayment(payment)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                              <DialogTitle>Payment Details - {payment.id}</DialogTitle>
-                              <DialogDescription>Complete payment transaction information</DialogDescription>
-                            </DialogHeader>
-                            {selectedPayment && (
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Payment ID</label>
-                                    <p className="font-medium">{selectedPayment.id}</p>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Booking ID</label>
-                                    <p className="font-medium">{selectedPayment.bookingId}</p>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Guest Name</label>
-                                    <p className="font-medium">{selectedPayment.guestName}</p>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Payment Date</label>
-                                    <p className="font-medium">{selectedPayment.date}</p>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Payment Method</label>
-                                    <p className="font-medium">{selectedPayment.method}</p>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Status</label>
-                                    <div className="mt-1">{getStatusBadge(selectedPayment.status)}</div>
-                                  </div>
-                                  <div className="col-span-2">
-                                    <label className="text-sm font-medium text-muted-foreground">Reference/Transaction ID</label>
-                                    <p className="font-medium">{selectedPayment.reference || 'N/A'}</p>
-                                  </div>
-                                  <div className="col-span-2">
-                                    <label className="text-sm font-medium text-muted-foreground">Description</label>
-                                    <p className="font-medium">{selectedPayment.description}</p>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium text-muted-foreground">Amount</label>
-                                    <p className="text-2xl font-bold text-primary">
-                                      {formatCurrency(selectedPayment.amount)}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </DialogContent>
-                        </Dialog>
+                </TableHeader>
+                <TableBody>
+                  {filteredPayments.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                        No payments found
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  ) : (
+                    filteredPayments.map((payment) => (
+                      <TableRow key={payment.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">{payment.id}</TableCell>
+                        <TableCell>{payment.bookingId}</TableCell>
+                        <TableCell className="font-medium">{payment.guestName}</TableCell>
+                        <TableCell className="font-semibold">{formatCurrency(payment.amount)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1 text-sm">
+                            <Calendar className="h-3 w-3 text-muted-foreground" />
+                            {payment.date}
+                          </div>
+                        </TableCell>
+                        <TableCell>{payment.method}</TableCell>
+                        <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                        <TableCell className="text-right">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedPayment(payment)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Payment Details - {payment.id}</DialogTitle>
+                                <DialogDescription>Complete payment transaction information</DialogDescription>
+                              </DialogHeader>
+                              {selectedPayment && (
+                                <div className="space-y-4">
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <label className="text-sm font-medium text-muted-foreground">Payment ID</label>
+                                      <p className="font-medium">{selectedPayment.id}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-muted-foreground">Booking ID</label>
+                                      <p className="font-medium">{selectedPayment.bookingId}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-muted-foreground">Guest Name</label>
+                                      <p className="font-medium">{selectedPayment.guestName}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-muted-foreground">Payment Date</label>
+                                      <p className="font-medium">{selectedPayment.date}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-muted-foreground">Payment Method</label>
+                                      <p className="font-medium">{selectedPayment.method}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-muted-foreground">Status</label>
+                                      <div className="mt-1">{getStatusBadge(selectedPayment.status)}</div>
+                                    </div>
+                                    {selectedPayment.reference && (
+                                      <div className="col-span-2">
+                                        <label className="text-sm font-medium text-muted-foreground">Reference/Transaction ID</label>
+                                        <p className="font-medium">{selectedPayment.reference}</p>
+                                      </div>
+                                    )}
+                                    {selectedPayment.description && (
+                                      <div className="col-span-2">
+                                        <label className="text-sm font-medium text-muted-foreground">Description</label>
+                                        <p className="font-medium">{selectedPayment.description}</p>
+                                      </div>
+                                    )}
+                                    <div>
+                                      <label className="text-sm font-medium text-muted-foreground">Amount</label>
+                                      <p className="text-2xl font-bold text-primary">
+                                        {formatCurrency(selectedPayment.amount)}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2 pt-4 border-t">
+                                    <Button
+                                      variant="destructive"
+                                      className="flex-1"
+                                      onClick={() => handleDelete(selectedPayment.id)}
+                                      disabled={actionLoading === selectedPayment.id}
+                                    >
+                                      {actionLoading === selectedPayment.id ? (
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                      ) : null}
+                                      Delete Payment
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
   )
 }
-

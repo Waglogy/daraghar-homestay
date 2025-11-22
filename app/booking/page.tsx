@@ -5,9 +5,13 @@ import Footer from '@/components/footer'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { bookingApi } from '@/lib/api'
+import { useToast } from '@/hooks/use-toast'
+import GalleryPopup from '@/components/gallery-popup'
 
 export default function BookingPage() {
+  const { toast } = useToast()
   const [formData, setFormData] = useState({
     checkIn: '',
     checkOut: '',
@@ -18,16 +22,110 @@ export default function BookingPage() {
     phone: '',
     specialRequests: '',
   })
+  const [isLoading, setIsLoading] = useState(false)
+  const [showGalleryPopup, setShowGalleryPopup] = useState(false)
+
+  // Check for pre-filled data from Quick Booking form
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const quickBookingData = localStorage.getItem('quickBookingData')
+      if (quickBookingData) {
+        try {
+          const data = JSON.parse(quickBookingData)
+          if (data.fromQuickBooking) {
+            // Pre-fill the form with Quick Booking data
+            setFormData(prev => ({
+              ...prev,
+              checkIn: data.checkIn || prev.checkIn,
+              checkOut: data.checkOut || prev.checkOut,
+              guests: data.guests || prev.guests,
+              accommodation: data.accommodation || prev.accommodation,
+            }))
+            
+            // Show a toast message
+            toast({
+              title: 'Quick Booking Details Loaded',
+              description: 'Your selected dates and preferences have been pre-filled. Please complete the remaining details.',
+            })
+            
+            // Clear the data after using it
+            localStorage.removeItem('quickBookingData')
+          }
+        } catch (err) {
+          console.error('Error parsing quick booking data:', err)
+          localStorage.removeItem('quickBookingData')
+        }
+      }
+    }
+  }, [toast])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const getAccommodationType = (value: string) => {
+    const mapping: Record<string, string> = {
+      glamping: 'Luxury Glamping Tent',
+      homestay: 'Authentic Homestay',
+      pod: 'Mountain Wellness Pod',
+    }
+    return mapping[value] || value
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    alert('Booking request submitted! We will contact you shortly.')
-    console.log('Form submitted:', formData)
+    setIsLoading(true)
+
+    try {
+      const result = await bookingApi.create({
+        fullName: formData.name,
+        email: formData.email,
+        phoneNumber: formData.phone,
+        checkInDate: formData.checkIn,
+        checkOutDate: formData.checkOut,
+        numberOfGuests: parseInt(formData.guests) || 2,
+        accommodationType: getAccommodationType(formData.accommodation),
+        specialRequests: formData.specialRequests || undefined,
+      })
+
+      if (result.success) {
+        const bookingRef = result.data?.booking?.bookingReference || 'N/A'
+        toast({
+          title: 'Booking Request Submitted!',
+          description: `Your booking request has been received. Booking Reference: ${bookingRef}. We will contact you shortly.`,
+        })
+        // Reset form
+        setFormData({
+          checkIn: '',
+          checkOut: '',
+          guests: '2',
+          accommodation: 'glamping',
+          name: '',
+          email: '',
+          phone: '',
+          specialRequests: '',
+        })
+        // Show gallery popup after a short delay
+        setTimeout(() => {
+          setShowGalleryPopup(true)
+        }, 1000)
+      } else {
+        toast({
+          title: 'Failed to Submit Booking',
+          description: result.error || 'Please try again later.',
+          variant: 'destructive',
+        })
+      }
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -168,11 +266,20 @@ export default function BookingPage() {
 
                 {/* Submit */}
                 <div className="border-t border-border pt-6 flex flex-col sm:flex-row gap-4">
-                  <Button type="submit" className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-base font-semibold">
-                    Submit Booking Request
+                  <Button 
+                    type="submit" 
+                    className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-base font-semibold"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Submitting...' : 'Submit Booking Request'}
                   </Button>
                   <Link href="/" className="flex-1">
-                    <Button type="button" variant="outline" className="w-full border-primary text-primary hover:bg-primary/5 py-6 text-base">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="w-full border-primary text-primary hover:bg-primary/5 py-6 text-base"
+                      disabled={isLoading}
+                    >
                       Cancel
                     </Button>
                   </Link>
@@ -188,6 +295,8 @@ export default function BookingPage() {
       </div>
 
       <Footer />
+      
+      <GalleryPopup open={showGalleryPopup} onOpenChange={setShowGalleryPopup} />
     </main>
   )
 }

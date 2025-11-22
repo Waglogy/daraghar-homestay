@@ -1,20 +1,70 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname()
+  const router = useRouter()
+  const isHomePage = pathname === '/'
 
-  const navItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Accommodations', href: '#accommodations' },
-    { label: 'Experiences', href: '#experiences' },
-    { label: 'Gallery', href: '/gallery' },
-    { label: 'Reviews', href: '/testimonials' },
-    { label: 'Contact', href: '/contact' },
+  const handleSectionClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault()
+    setIsOpen(false)
+    
+    if (isHomePage) {
+      // If on home page, scroll to section
+      const element = document.getElementById(sectionId)
+      if (element) {
+        const offset = 80 // Account for fixed navbar
+        const elementPosition = element.getBoundingClientRect().top
+        const offsetPosition = elementPosition + window.pageYOffset - offset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        })
+      }
+    } else {
+      // If on other page, navigate to home with hash
+      router.push(`/#${sectionId}`)
+    }
+  }
+
+  // Handle hash on page load
+  useEffect(() => {
+    if (isHomePage && window.location.hash) {
+      const hash = window.location.hash.substring(1)
+      setTimeout(() => {
+        const element = document.getElementById(hash)
+        if (element) {
+          const offset = 80
+          const elementPosition = element.getBoundingClientRect().top
+          const offsetPosition = elementPosition + window.pageYOffset - offset
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          })
+        }
+      }, 100)
+    }
+  }, [isHomePage])
+
+  type NavItem = 
+    | { label: string; href: string; isSection: false }
+    | { label: string; href: string; isSection: true; sectionId: string }
+
+  const navItems: NavItem[] = [
+    { label: 'Home', href: '/', isSection: false },
+    { label: 'Accommodations', href: '#accommodations', isSection: true, sectionId: 'accommodations' },
+    { label: 'Experiences', href: '#experiences', isSection: true, sectionId: 'experiences' },
+    { label: 'Gallery', href: '/gallery', isSection: false },
+    { label: 'Reviews', href: '/testimonials', isSection: false },
+    { label: 'Contact', href: '/contact', isSection: false },
   ]
 
   return (
@@ -32,11 +82,23 @@ export default function Navigation() {
           {/* Desktop Menu */}
           <div className="hidden md:flex gap-1">
             {navItems.map((item) => (
-              <Link key={item.label} href={item.href}>
-                <Button variant="ghost" className="text-foreground hover:text-primary hover:bg-primary/5">
-                  {item.label}
-                </Button>
-              </Link>
+              item.isSection ? (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={(e) => handleSectionClick(e, item.sectionId)}
+                >
+                  <Button variant="ghost" className="text-foreground hover:text-primary hover:bg-primary/5">
+                    {item.label}
+                  </Button>
+                </a>
+              ) : (
+                <Link key={item.label} href={item.href}>
+                  <Button variant="ghost" className="text-foreground hover:text-primary hover:bg-primary/5">
+                    {item.label}
+                  </Button>
+                </Link>
+              )
             ))}
           </div>
 
@@ -62,11 +124,23 @@ export default function Navigation() {
         {isOpen && (
           <div className="md:hidden pb-4 space-y-2 border-t border-border">
             {navItems.map((item) => (
-              <Link key={item.label} href={item.href} onClick={() => setIsOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start text-foreground hover:text-primary hover:bg-primary/5">
-                  {item.label}
-                </Button>
-              </Link>
+              item.isSection ? (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={(e) => handleSectionClick(e, item.sectionId)}
+                >
+                  <Button variant="ghost" className="w-full justify-start text-foreground hover:text-primary hover:bg-primary/5">
+                    {item.label}
+                  </Button>
+                </a>
+              ) : (
+                <Link key={item.label} href={item.href} onClick={() => setIsOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start text-foreground hover:text-primary hover:bg-primary/5">
+                    {item.label}
+                  </Button>
+                </Link>
+              )
             ))}
             <Link href="/booking" onClick={() => setIsOpen(false)}>
               <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground mt-2">

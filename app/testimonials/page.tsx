@@ -1,100 +1,65 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navigation from '@/components/navigation'
 import Footer from '@/components/footer'
 import TestimonialForm from '@/components/testimonial-form'
 import { Star } from 'lucide-react'
+import { reviewApi } from '@/lib/api'
 
 interface Testimonial {
   id: string
-  name: string
+  fullName?: string
+  name?: string
   location: string
   rating: number
-  text: string
-  date: string
+  review?: string
+  text?: string
+  createdAt?: string
+  date?: string
 }
 
 export default function TestimonialsPage() {
-  const allTestimonials: Testimonial[] = [
-    {
-      id: '1',
-      name: 'Priya Sharma',
-      location: 'Delhi',
-      rating: 5,
-      text: 'An absolutely magical experience! The glamping setup was luxurious and the bonfire nights were unforgettable.',
-      date: '2024-11-10',
-    },
-    {
-      id: '2',
-      name: 'Rajesh Kumar',
-      location: 'Mumbai',
-      rating: 5,
-      text: 'Best homestay experience ever. The warmth of the local family and mountain views made our trip truly special.',
-      date: '2024-11-08',
-    },
-    {
-      id: '3',
-      name: 'Anjali Patel',
-      location: 'Bangalore',
-      rating: 4,
-      text: 'Wonderful place to escape the city chaos. The village tourism and nature trails were excellent.',
-      date: '2024-11-05',
-    },
-    {
-      id: '4',
-      name: 'Vikram Singh',
-      location: 'Pune',
-      rating: 5,
-      text: 'Daraghar Maila exceeded all expectations. The views, activities, and food were all perfect.',
-      date: '2024-11-01',
-    },
-    {
-      id: '5',
-      name: 'Maya Desai',
-      location: 'Ahmedabad',
-      rating: 5,
-      text: 'Perfect getaway with family! Kids loved the nature trails and cultural activities.',
-      date: '2024-10-28',
-    },
-    {
-      id: '6',
-      name: 'Arjun Nair',
-      location: 'Kochi',
-      rating: 4,
-      text: 'Great place for a weekend retreat. The glamping experience was unique and memorable.',
-      date: '2024-10-25',
-    },
-    {
-      id: '7',
-      name: 'Sneha Gupta',
-      location: 'Jaipur',
-      rating: 5,
-      text: 'Amazing bonfire nights and delicious organic meals. The homestay felt like staying with family.',
-      date: '2024-10-20',
-    },
-    {
-      id: '8',
-      name: 'Aditya Verma',
-      location: 'Lucknow',
-      rating: 5,
-      text: 'One of the best experiences of my life. The natural beauty and luxury are unbeatable.',
-      date: '2024-10-15',
-    },
-  ]
-
+  const [allTestimonials, setAllTestimonials] = useState<Testimonial[]>([])
   const [sortBy, setSortBy] = useState<'recent' | 'rating'>('recent')
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setIsLoading(true)
+        const result = await reviewApi.getApproved({ page: 1, limit: 50 })
+        if (result.success && result.data) {
+          const reviews = Array.isArray(result.data) ? result.data : result.data.reviews || []
+          setAllTestimonials(reviews.map((review: any) => ({
+            id: review.id || review._id,
+            name: review.fullName || review.name,
+            location: review.location || '',
+            rating: review.rating || 5,
+            text: review.review || review.text || '',
+            date: review.createdAt ? new Date(review.createdAt).toISOString().split('T')[0] : review.date || new Date().toISOString().split('T')[0],
+          })))
+        }
+      } catch (err) {
+        console.error('Error fetching reviews:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchReviews()
+  }, [])
 
   const sortedTestimonials = [...allTestimonials].sort((a, b) => {
     if (sortBy === 'recent') {
-      return new Date(b.date).getTime() - new Date(a.date).getTime()
+      return new Date(b.date || '').getTime() - new Date(a.date || '').getTime()
     }
     return b.rating - a.rating
   })
 
-  const averageRating = (
-    allTestimonials.reduce((sum, t) => sum + t.rating, 0) / allTestimonials.length
-  ).toFixed(1)
+  const averageRating = allTestimonials.length > 0
+    ? (allTestimonials.reduce((sum, t) => sum + t.rating, 0) / allTestimonials.length).toFixed(1)
+    : '0.0'
 
   return (
     <main className="min-h-screen bg-background">
@@ -155,31 +120,41 @@ export default function TestimonialsPage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
-            {sortedTestimonials.map((testimonial) => (
-              <div key={testimonial.id} className="bg-card rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 border border-border/50 hover:border-primary/30">
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} size={18} className={i < testimonial.rating ? 'fill-primary text-primary' : 'text-muted-foreground'} />
-                  ))}
-                </div>
-
-                <p className="text-foreground text-base leading-relaxed mb-6">
-                  {testimonial.text}
-                </p>
-
-                <div className="border-t border-border/50 pt-4 flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold text-foreground">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading reviews...</p>
+            </div>
+          ) : sortedTestimonials.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No reviews available yet. Be the first to share your experience!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
+              {sortedTestimonials.map((testimonial) => (
+                <div key={testimonial.id} className="bg-card rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 border border-border/50 hover:border-primary/30">
+                  <div className="flex gap-1 mb-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} size={18} className={i < testimonial.rating ? 'fill-primary text-primary' : 'text-muted-foreground'} />
+                    ))}
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(testimonial.date).toLocaleDateString()}
+
+                  <p className="text-foreground text-base leading-relaxed mb-6">
+                    {testimonial.text}
                   </p>
+
+                  <div className="border-t border-border/50 pt-4 flex justify-between items-start">
+                    <div>
+                      <p className="font-semibold text-foreground">{testimonial.name}</p>
+                      <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {testimonial.date ? new Date(testimonial.date).toLocaleDateString() : ''}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="border-t border-border/50 my-16" />
 
