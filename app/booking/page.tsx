@@ -41,13 +41,13 @@ export default function BookingPage() {
               guests: data.guests || prev.guests,
               accommodation: data.accommodation || prev.accommodation,
             }))
-            
+
             // Show a toast message
             toast({
               title: 'Quick Booking Details Loaded',
               description: 'Your selected dates and preferences have been pre-filled. Please complete the remaining details.',
             })
-            
+
             // Clear the data after using it
             localStorage.removeItem('quickBookingData')
           }
@@ -90,7 +90,7 @@ export default function BookingPage() {
       })
 
       if (result.success) {
-        const bookingRef = result.data?.booking?.bookingReference || 'N/A'
+        const bookingRef = (result.data as any)?.booking?.bookingReference || 'N/A'
         toast({
           title: 'Booking Request Submitted!',
           description: `Your booking request has been received. Booking Reference: ${bookingRef}. We will contact you shortly.`,
@@ -131,7 +131,7 @@ export default function BookingPage() {
   return (
     <main className="min-h-screen bg-background">
       <Navigation />
-      
+
       <div className="pt-32 pb-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-12">
@@ -219,18 +219,15 @@ export default function BookingPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">Number of Guests *</label>
-                      <select
+                      <input
+                        type="number"
                         name="guests"
+                        min="1"
                         value={formData.guests}
                         onChange={handleChange}
+                        required
                         className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <option value="1">1 Guest</option>
-                        <option value="2">2 Guests</option>
-                        <option value="3">3 Guests</option>
-                        <option value="4">4 Guests</option>
-                        <option value="5+">5+ Guests</option>
-                      </select>
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">Accommodation Type *</label>
@@ -240,9 +237,9 @@ export default function BookingPage() {
                         onChange={handleChange}
                         className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                       >
-                        <option value="glamping">Luxury Glamping Tent - ₹6,500/night</option>
-                        <option value="homestay">Authentic Homestay - ₹3,500/night</option>
-                        <option value="pod">Mountain Wellness Pod - ₹5,000/night</option>
+                        <option value="glamping">Luxury Glamping Tent</option>
+                        <option value="homestay">Authentic Homestay</option>
+                        <option value="pod">Mountain Wellness Pod</option>
                       </select>
                     </div>
                   </div>
@@ -264,19 +261,53 @@ export default function BookingPage() {
                   </div>
                 </div>
 
+                {/* Price Calculation */}
+                {formData.checkIn && formData.checkOut && formData.guests && (
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-2">
+                    <h4 className="font-semibold text-foreground">Estimated Total</h4>
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Rate per person</span>
+                      <span>₹1,500 / night</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Duration</span>
+                      <span>
+                        {Math.max(0, Math.ceil((new Date(formData.checkOut).getTime() - new Date(formData.checkIn).getTime()) / (1000 * 60 * 60 * 24)))} nights
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Guests</span>
+                      <span>{formData.guests} persons</span>
+                    </div>
+                    <div className="border-t border-primary/20 pt-2 flex justify-between font-bold text-lg text-primary">
+                      <span>Total Payble Amount</span>
+                      <span>
+                        ₹{(
+                          Math.max(0, Math.ceil((new Date(formData.checkOut).getTime() - new Date(formData.checkIn).getTime()) / (1000 * 60 * 60 * 24))) *
+                          parseInt(formData.guests || '0') *
+                          1500
+                        ).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      * Includes dinner and breakfast. Payment to be made at the property.
+                    </p>
+                  </div>
+                )}
+
                 {/* Submit */}
                 <div className="border-t border-border pt-6 flex flex-col sm:flex-row gap-4">
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-base font-semibold"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Submitting...' : 'Submit Booking Request'}
+                    {isLoading ? 'Submitting...' : 'Confirm Booking'}
                   </Button>
                   <Link href="/" className="flex-1">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
+                    <Button
+                      type="button"
+                      variant="outline"
                       className="w-full border-primary text-primary hover:bg-primary/5 py-6 text-base"
                       disabled={isLoading}
                     >
@@ -295,7 +326,7 @@ export default function BookingPage() {
       </div>
 
       <Footer />
-      
+
       <GalleryPopup open={showGalleryPopup} onOpenChange={setShowGalleryPopup} />
     </main>
   )

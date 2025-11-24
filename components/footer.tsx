@@ -20,9 +20,9 @@ export default function Footer() {
               </div>
               <span className="font-bold text-lg">Daraghar Maila</span>
             </div>
-            <p className="text-background/80">Premium mountain hospitality and authentic Himalayan experiences near Gangtok, Sikkim.</p>
+            <p className="text-background/80">Experience authentic Sikkimese village life in our ancestral home on the peaceful slopes of Lower Luing, where generations of heritage meet warm hospitality.</p>
             <div className="flex gap-3">
-              {[Facebook, Instagram, Twitter].map((Icon, idx) => (
+              {[Facebook, Instagram].map((Icon, idx) => (
                 <button key={idx} className="w-10 h-10 bg-primary/20 hover:bg-primary/40 rounded-lg flex items-center justify-center text-background transition-colors">
                   <Icon size={18} />
                 </button>
@@ -55,7 +55,7 @@ export default function Footer() {
             <div className="space-y-3 text-background/80">
               <div className="flex items-center gap-3">
                 <MapPin size={18} className="text-primary flex-shrink-0" />
-                <span>Daraghar Maila, Gangtok, Sikkim</span>
+                <span>Lower Luing, Gangtok, Sikkim</span>
               </div>
               <div className="flex items-center gap-3">
                 <Phone size={18} className="text-primary flex-shrink-0" />
@@ -91,6 +91,9 @@ export default function Footer() {
         {/* Bottom */}
         <div className="mt-12 flex flex-col sm:flex-row justify-between items-center gap-4 text-background/80 text-sm">
           <p>&copy; {currentYear} Daraghar Maila. All rights reserved.</p>
+          <p className="flex items-center gap-2">
+            Made with <span className="text-red-400">♥</span> by <a href="https://waglogy.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors font-semibold">Waglogy</a>
+          </p>
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-background transition-colors">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-background transition-colors">Terms & Conditions</Link>

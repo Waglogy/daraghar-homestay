@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -13,8 +14,9 @@ export default function Accommodations() {
       description: 'Premium safari-style tents with all modern amenities',
       icon: Tent,
       features: ['En-suite bathrooms', 'Heated beds', 'Mountain views', '24/7 service'],
-      price: '₹6,500/night',
+      price: '₹1,500 / person',
       link: '/accommodations/glamping',
+      image: 'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=800&q=80'
     },
     {
       id: 2,
@@ -22,8 +24,9 @@ export default function Accommodations() {
       description: 'Experience local culture with warm family hospitality',
       icon: Home,
       features: ['Organic meals', 'Local guides', 'Cultural immersion', 'Family rooms'],
-      price: '₹3,500/night',
+      price: '₹1,500 / person',
       link: '/accommodations/homestay',
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80'
     },
     {
       id: 3,
@@ -31,8 +34,9 @@ export default function Accommodations() {
       description: 'Modern eco-friendly pods with panoramic views',
       icon: Wind,
       features: ['Sustainable design', 'Nature sounds', 'Meditation space', 'Sky windows'],
-      price: '₹5,000/night',
+      price: '₹1,500 / person',
       link: '/accommodations/pods',
+      image: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&q=80'
     },
   ]
 
@@ -53,38 +57,42 @@ export default function Accommodations() {
           {accommodations.map((acc) => {
             const Icon = acc.icon
             return (
-              <Card key={acc.id} className="group border-primary/20 hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-2xl">
-                <div className="relative h-32 sm:h-40 md:h-48 bg-primary/5 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-                    <Icon size={48} className="text-primary/40" />
+              <Card key={acc.id} className="group border-primary/20 hover:border-primary/50 transition-all duration-300 overflow-hidden shadow-lg hover:shadow-2xl flex flex-col">
+                <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">
+                  <Image
+                    src={acc.image}
+                    alt={acc.title}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-4 left-4 text-white flex items-center gap-2">
+                    <div className="p-2 bg-primary/20 backdrop-blur-sm rounded-lg">
+                      <Icon size={20} className="text-white" />
+                    </div>
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent" />
                 </div>
 
-                <CardHeader className="space-y-2 p-4 sm:p-6">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1">
-                      <CardTitle className="text-base sm:text-lg md:text-xl">{acc.title}</CardTitle>
-                      <CardDescription className="text-xs sm:text-sm">{acc.description}</CardDescription>
-                    </div>
-                    <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
-                      <Icon size={20} className="text-primary" />
-                    </div>
-                  </div>
+                <CardHeader className="space-y-2 p-4 sm:p-6 pb-2">
+                  <CardTitle className="text-base sm:text-lg md:text-xl">{acc.title}</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm line-clamp-2">{acc.description}</CardDescription>
                 </CardHeader>
 
-                <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
+                <CardContent className="space-y-4 p-4 sm:p-6 pt-0 flex-1 flex flex-col justify-between">
                   <div className="grid grid-cols-2 gap-2">
                     {acc.features.map((feature, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                         <span className="w-1 h-1 rounded-full bg-primary flex-shrink-0" />
-                        <span>{feature}</span>
+                        <span className="truncate">{feature}</span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-border">
-                    <span className="text-base sm:text-lg font-bold text-primary">{acc.price}</span>
+                  <div className="flex items-center justify-between pt-4 border-t border-border mt-auto">
+                    <div className="flex flex-col">
+                      <span className="text-lg sm:text-xl font-bold text-primary">{acc.price}</span>
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Includes Meals</span>
+                    </div>
                     <Link href={acc.link}>
                       <Button size="sm" className="bg-primary hover:bg-primary/90 text-xs sm:text-sm">
                         Details

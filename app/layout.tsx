@@ -10,13 +10,13 @@ const geistMono = Geist_Mono({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Daraghar Maila - Luxury Mountain Retreat',
   description: 'Premium glamping and homestay in Sikkim near Gangtok',
-    generator: 'v0.app'
+  generator: 'v0.app'
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased">
+    <html lang="en" suppressHydrationWarning>
+      <body className="font-sans antialiased" suppressHydrationWarning>
         {children}
         <Toaster />
         <Analytics />

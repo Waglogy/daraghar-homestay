@@ -65,3 +65,4 @@ export default function GalleryPopup({ open, onOpenChange }: GalleryPopupProps) 
   )
 }
 
+

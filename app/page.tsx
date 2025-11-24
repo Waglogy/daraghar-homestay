@@ -3,9 +3,12 @@
 import { useEffect } from 'react'
 import Navigation from '@/components/navigation'
 import Hero from '@/components/hero'
-import TestimonialsDisplay from '@/components/testimonials-display'
+import OurStory from '@/components/our-story'
 import Accommodations from '@/components/accommodations'
 import Experiences from '@/components/experiences'
+import Dining from '@/components/dining'
+import Attractions from '@/components/attractions'
+import TestimonialsDisplay from '@/components/testimonials-display'
 import Gallery from '@/components/gallery'
 import BookingCta from '@/components/booking-cta'
 import Footer from '@/components/footer'
@@ -32,7 +35,7 @@ export default function Home() {
     }
 
     handleHashNavigation()
-    
+
     // Also handle hash changes
     window.addEventListener('hashchange', handleHashNavigation)
     return () => window.removeEventListener('hashchange', handleHashNavigation)
@@ -42,11 +45,13 @@ export default function Home() {
     <main className="min-h-screen bg-background">
       <Navigation />
       <Hero />
-      <TestimonialsDisplay />
+      <OurStory />
       <Accommodations />
-      <Experiences />
-      <Gallery />
       <BookingCta />
+      <Dining />
+      <Experiences />
+      <TestimonialsDisplay />
+      <Gallery />
       <Footer />
     </main>
   )
