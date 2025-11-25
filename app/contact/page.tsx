@@ -75,7 +75,7 @@ export default function ContactPage() {
   return (
     <main className="min-h-screen bg-background">
       <Navigation />
-      
+
       <div className="pt-32 pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-16">
@@ -89,12 +89,12 @@ export default function ContactPage() {
             {/* Contact Info */}
             <div className="space-y-8">
               <h2 className="text-2xl font-bold">Contact Information</h2>
-              
+
               {[
                 {
                   icon: MapPin,
                   title: 'Location',
-                  content: 'Daraghar Maila, Gangtok, Sikkim - 737101',
+                  content: 'DARAMAILA FARMSTAY, Gangtok, Sikkim - 737101',
                 },
                 {
                   icon: Phone,
@@ -122,7 +122,7 @@ export default function ContactPage() {
                 ) : (
                   item.content
                 )
-                
+
                 return (
                   <Card key={idx} className="border-primary/20 hover:border-primary/50 transition-all">
                     <CardContent className="p-6 flex gap-4">
@@ -198,8 +198,8 @@ export default function ContactPage() {
                         placeholder="Your message here..."
                       />
                     </div>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-base font-semibold"
                       disabled={isLoading}
                     >
@@ -214,7 +214,7 @@ export default function ContactPage() {
       </div>
 
       <Footer />
-      
+
       <GalleryPopup open={showGalleryPopup} onOpenChange={setShowGalleryPopup} />
     </main>
   )

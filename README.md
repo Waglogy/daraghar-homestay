@@ -1,8 +1,8 @@
-# 🏔️ Daraghar Maila - Luxury Mountain Retreat
+# 🏔️ DARAMAILA FARMSTAY - Luxury Mountain Retreat
 
 <div align="center">
 
-![Daraghar Maila](https://img.shields.io/badge/Daraghar%20Maila-Luxury%20Retreat-4CAF50?style=for-the-badge)
+![DARAMAILA FARMSTAY](https://img.shields.io/badge/DARAMAILA%20FARMSTAY-Luxury%20Retreat-4CAF50?style=for-the-badge)
 ![Next.js](https://img.shields.io/badge/Next.js-16.0-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
 ![React](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react)
@@ -19,7 +19,7 @@
 
 ## 📖 About
 
-**Daraghar Maila** is a luxury mountain retreat offering premium glamping tents, authentic homestays, and modern wellness pods in the beautiful region of Sikkim, near Gangtok. This website provides a seamless booking experience for travelers seeking an immersive mountain getaway with modern amenities and cultural experiences.
+**DARAMAILA FARMSTAY** is a luxury mountain retreat offering premium glamping tents, authentic homestays, and modern wellness pods in the beautiful region of Sikkim, near Gangtok. This website provides a seamless booking experience for travelers seeking an immersive mountain getaway with modern amenities and cultural experiences.
 
 ### 🌟 Key Highlights
 
@@ -294,7 +294,7 @@ This project is proprietary and confidential. All rights reserved.
 
 <div align="center">
 
-**Made with ❤️ by Waglogy for Daraghar Maila**
+**Made with ❤️ by Waglogy for DARAMAILA FARMSTAY**
 
 ⭐ Star this repo if you find it helpful!
 

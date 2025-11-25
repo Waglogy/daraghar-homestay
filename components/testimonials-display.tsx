@@ -83,7 +83,7 @@ export default function TestimonialsDisplay() {
             What Our Guests Say
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
-            Real experiences from travelers who&apos;ve discovered the magic of Daraghar Maila.
+            Real experiences from travelers who&apos;ve discovered the magic of DARAMAILA FARMSTAY.
           </p>
         </div>
 

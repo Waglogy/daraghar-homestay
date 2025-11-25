@@ -18,7 +18,7 @@ export default function Footer() {
               <div className="w-10 h-10 bg-gradient-to-br from-secondary to-primary rounded-lg flex items-center justify-center text-foreground font-bold">
                 D
               </div>
-              <span className="font-bold text-lg">Daraghar Maila</span>
+              <span className="font-bold text-lg">DARAMAILA FARMSTAY</span>
             </div>
             <p className="text-background/80">Experience authentic Sikkimese village life in our ancestral home on the peaceful slopes of Lower Luing, where generations of heritage meet warm hospitality.</p>
             <div className="flex gap-3">
@@ -90,7 +90,7 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className="mt-12 flex flex-col sm:flex-row justify-between items-center gap-4 text-background/80 text-sm">
-          <p>&copy; {currentYear} Daraghar Maila. All rights reserved.</p>
+          <p>&copy; {currentYear} DARAMAILA FARMSTAY. All rights reserved.</p>
           <p className="flex items-center gap-2">
             Made with <span className="text-red-400">♥</span> by <a href="https://waglogy.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors font-semibold">Waglogy</a>
           </p>

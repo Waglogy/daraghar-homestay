@@ -80,7 +80,7 @@ export default function Gallery() {
             Visual Journey
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
-            Step into Daraghar Maila through stunning photography.
+            Step into DARAMAILA FARMSTAY through stunning photography.
           </p>
         </div>
 

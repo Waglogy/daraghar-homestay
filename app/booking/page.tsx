@@ -137,7 +137,7 @@ export default function BookingPage() {
           <div className="text-center space-y-4 mb-12">
             <h1 className="text-4xl sm:text-5xl font-bold">Book Your Stay</h1>
             <p className="text-muted-foreground text-lg">
-              Reserve your perfect mountain getaway at Daraghar Maila
+              Reserve your perfect mountain getaway at DARAMAILA FARMSTAY
             </p>
           </div>
 

@@ -71,7 +71,7 @@ export default function TestimonialsPage() {
             Guest Testimonials
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Real experiences from travelers who discovered the magic of Daraghar Maila.
+            Real experiences from travelers who discovered the magic of DARAMAILA FARMSTAY.
           </p>
 
           <div className="flex gap-8 justify-center flex-wrap">
@@ -100,21 +100,19 @@ export default function TestimonialsPage() {
           <div className="flex gap-4 justify-center mb-12">
             <button
               onClick={() => setSortBy('recent')}
-              className={`px-6 py-2 rounded-lg font-medium transition-all ${
-                sortBy === 'recent'
+              className={`px-6 py-2 rounded-lg font-medium transition-all ${sortBy === 'recent'
                   ? 'bg-primary text-primary-foreground shadow-lg'
                   : 'bg-card border border-border text-foreground hover:bg-muted'
-              }`}
+                }`}
             >
               Most Recent
             </button>
             <button
               onClick={() => setSortBy('rating')}
-              className={`px-6 py-2 rounded-lg font-medium transition-all ${
-                sortBy === 'rating'
+              className={`px-6 py-2 rounded-lg font-medium transition-all ${sortBy === 'rating'
                   ? 'bg-primary text-primary-foreground shadow-lg'
                   : 'bg-card border border-border text-foreground hover:bg-muted'
-              }`}
+                }`}
             >
               Highest Rated
             </button>
@@ -162,7 +160,7 @@ export default function TestimonialsPage() {
             <div className="text-center space-y-4">
               <h2 className="text-3xl sm:text-4xl font-bold">Share Your Story</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Have you experienced the magic of Daraghar Maila? We would love to hear your story!
+                Have you experienced the magic of DARAMAILA FARMSTAY? We would love to hear your story!
               </p>
             </div>
             <TestimonialForm />

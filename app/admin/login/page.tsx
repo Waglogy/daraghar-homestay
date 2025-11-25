@@ -71,7 +71,7 @@ export default function AdminLoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-xl shadow-lg mb-4">
             <span className="text-2xl font-bold text-primary-foreground">D</span>
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Daraghar Maila</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">DARAMAILA FARMSTAY</h1>
           <p className="text-muted-foreground">Admin Login</p>
         </div>
 
@@ -142,7 +142,7 @@ export default function AdminLoginPage() {
                   />
                   <span className="text-muted-foreground">Remember me</span>
                 </label>
-               
+
               </div>
 
               <Button
@@ -155,13 +155,13 @@ export default function AdminLoginPage() {
             </form>
 
             {/* Demo Credentials Info */}
-         
+
           </CardContent>
         </Card>
 
         {/* Footer */}
         <p className="text-center text-sm text-muted-foreground mt-6">
-          © {new Date().getFullYear()} Daraghar Maila. All rights reserved.
+          © {new Date().getFullYear()} DARAMAILA FARMSTAY. All rights reserved.
         </p>
       </div>
     </div>

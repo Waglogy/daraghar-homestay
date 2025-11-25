@@ -96,7 +96,7 @@ export default function Experiences() {
               Explore Gangtok & Beyond
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Daraghar Maila is perfectly situated to be your base for exploring the wonders of East Sikkim.
+              DARAMAILA FARMSTAY is perfectly situated to be your base for exploring the wonders of East Sikkim.
             </p>
           </div>
 

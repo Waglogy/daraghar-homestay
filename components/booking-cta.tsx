@@ -32,7 +32,7 @@ export default function BookingCta() {
 
   const handleCheckAvailability = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validate dates
     if (!formData.checkIn || !formData.checkOut) {
       return
@@ -40,17 +40,17 @@ export default function BookingCta() {
 
     const checkInDate = new Date(formData.checkIn)
     const checkOutDate = new Date(formData.checkOut)
-    
+
     if (checkOutDate <= checkInDate) {
       alert('Check-out date must be after check-in date')
       return
     }
 
     setIsChecking(true)
-    
+
     // Simulate API call to check availability
     await new Promise(resolve => setTimeout(resolve, 1500))
-    
+
     setIsChecking(false)
     setShowAvailability(true)
   }
@@ -81,7 +81,7 @@ export default function BookingCta() {
     }
 
     localStorage.setItem('quickBookingData', JSON.stringify(bookingData))
-    
+
     // Redirect to booking page
     router.push('/booking')
   }
@@ -90,7 +90,7 @@ export default function BookingCta() {
     <>
       <section className="py-12 sm:py-20 md:py-32 bg-gradient-to-b from-background to-primary/5 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10" />
-        
+
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             <div className="space-y-4 sm:space-y-6">
@@ -98,9 +98,9 @@ export default function BookingCta() {
                 Ready for Your Mountain Escape?
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-                Book your stay at Daraghar Maila and embark on an unforgettable journey through pristine Himalayan beauty.
+                Book your stay at DARAMAILA FARMSTAY and embark on an unforgettable journey through pristine Himalayan beauty.
               </p>
-              
+
               <div className="space-y-3 pt-2">
                 {[
                   { icon: Calendar, text: 'Flexible booking' },
@@ -132,31 +132,31 @@ export default function BookingCta() {
                 <form onSubmit={handleCheckAvailability} className="space-y-3 sm:space-y-4">
                   <div>
                     <label className="block text-xs sm:text-sm font-medium mb-2">Check-in Date *</label>
-                    <input 
-                      type="date" 
+                    <input
+                      type="date"
                       name="checkIn"
                       value={formData.checkIn}
                       onChange={handleChange}
                       required
                       min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm" 
+                      className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                     />
                   </div>
                   <div>
                     <label className="block text-xs sm:text-sm font-medium mb-2">Check-out Date *</label>
-                    <input 
-                      type="date" 
+                    <input
+                      type="date"
                       name="checkOut"
                       value={formData.checkOut}
                       onChange={handleChange}
                       required
                       min={formData.checkIn || new Date().toISOString().split('T')[0]}
-                      className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm" 
+                      className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                     />
                   </div>
                   <div>
                     <label className="block text-xs sm:text-sm font-medium mb-2">Guests *</label>
-                    <select 
+                    <select
                       name="guests"
                       value={formData.guests}
                       onChange={handleChange}
@@ -171,7 +171,7 @@ export default function BookingCta() {
                   </div>
                   <div>
                     <label className="block text-xs sm:text-sm font-medium mb-2">Type *</label>
-                    <select 
+                    <select
                       name="type"
                       value={formData.type}
                       onChange={handleChange}
@@ -183,7 +183,7 @@ export default function BookingCta() {
                       <option>Mountain Pod</option>
                     </select>
                   </div>
-                  <Button 
+                  <Button
                     type="submit"
                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 font-semibold text-sm sm:text-base"
                     disabled={isChecking}

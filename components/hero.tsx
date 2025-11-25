@@ -12,7 +12,7 @@ export default function Hero() {
       <div className="absolute inset-0">
         <img
           src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80"
-          alt="Daraghar Maila Background"
+          alt="DARAMAILA FARMSTAY Background"
           className="w-full h-full object-cover opacity-50"
         />
         {/* Gradient Overlay - merged into this container to ensure correct stacking */}
@@ -32,7 +32,7 @@ export default function Hero() {
           {/* Main Heading */}
           <div className="space-y-4 sm:space-y-6 animate-fade-in-up delay-100">
             <h1 className="text-balance text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground drop-shadow-sm">
-              Daraghar Maila
+              DARAMAILA FARMSTAY
               <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl mt-2 font-light text-muted-foreground">
                 Homestay & Glamping
               </span>

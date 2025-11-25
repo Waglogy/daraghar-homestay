@@ -35,7 +35,7 @@ export default function GalleryPopup({ open, onOpenChange }: GalleryPopupProps) 
             Explore Our Gallery
           </DialogTitle>
           <DialogDescription className="text-center text-base pt-2">
-            Thank you for your submission! While you wait, why not take a moment to explore the breathtaking beauty of Daraghar Maila through our photo gallery?
+            Thank you for your submission! While you wait, why not take a moment to explore the breathtaking beauty of DARAMAILA FARMSTAY through our photo gallery?
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">

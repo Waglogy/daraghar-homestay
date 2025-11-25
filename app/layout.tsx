@@ -8,7 +8,7 @@ const geist = Geist({ subsets: ['latin'] })
 const geistMono = Geist_Mono({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Daraghar Maila - Luxury Mountain Retreat',
+  title: 'DARAMAILA FARMSTAY - Luxury Mountain Retreat',
   description: 'Premium glamping and homestay in Sikkim near Gangtok',
   generator: 'v0.app'
 }

@@ -12,10 +12,10 @@ export default function OurStory() {
                 <div className="text-center space-y-6">
                     <span className="inline-block text-primary font-semibold text-sm uppercase tracking-widest">Our Heritage</span>
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
-                        The Soul of Daraghar Maila
+                        The Soul of DARAMAILA FARMSTAY
                     </h2>
                     <p className="text-lg text-muted-foreground leading-relaxed">
-                        Daraghar Maila is not just a name — it’s a living memory of our roots.
+                        DARAMAILA FARMSTAY is not just a name — it’s a living memory of our roots.
                     </p>
                 </div>
 
@@ -52,7 +52,7 @@ export default function OurStory() {
                     <div className="bg-background p-6 rounded-2xl shadow-sm border border-border/50">
                         <h3 className="text-xl font-bold mb-3 text-primary">Why We Started</h3>
                         <p className="text-muted-foreground text-sm leading-relaxed">
-                            We created Daraghar Maila Homestay & Glamping to share our roots, stories, and the peaceful rhythm of Sikkimese village life with travelers from around the world.
+                            We created DARAMAILA FARMSTAY Homestay & Glamping to share our roots, stories, and the peaceful rhythm of Sikkimese village life with travelers from around the world.
                         </p>
                     </div>
                 </div>
@@ -62,7 +62,7 @@ export default function OurStory() {
                     <div className="text-center mb-10">
                         <h3 className="text-2xl sm:text-3xl font-bold mb-4">Why Stay With Us?</h3>
                         <p className="text-muted-foreground">
-                            A stay at Daraghar Maila is a chance to slow down, reconnect with nature, and experience village life with authenticity.
+                            A stay at DARAMAILA FARMSTAY is a chance to slow down, reconnect with nature, and experience village life with authenticity.
                         </p>
                     </div>
 

@@ -65,10 +65,10 @@ export default function AdminLayout({
     // Check authentication status
     const checkAuth = () => {
       if (typeof window === 'undefined') return
-      
+
       const authStatus = localStorage.getItem('admin_authenticated')
       const email = localStorage.getItem('admin_email')
-      
+
       if (authStatus === 'true') {
         setIsAuthenticated(true)
         setAdminEmail(email)
@@ -138,7 +138,7 @@ export default function AdminLayout({
                   D
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-bold text-primary text-sm">Daraghar Maila</span>
+                  <span className="font-bold text-primary text-sm">DARAMAILA FARMSTAY</span>
                   <span className="text-xs text-muted-foreground">Admin Panel</span>
                 </div>
               </div>

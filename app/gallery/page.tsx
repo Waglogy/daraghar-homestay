@@ -21,13 +21,13 @@ export default function GalleryPage() {
   return (
     <main className="min-h-screen bg-background">
       <Navigation />
-      
+
       <div className="pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-16">
             <h1 className="text-4xl sm:text-5xl font-bold">Gallery</h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Explore the beauty of Daraghar Maila through our photography collection
+              Explore the beauty of DARAMAILA FARMSTAY through our photography collection
             </p>
           </div>
 

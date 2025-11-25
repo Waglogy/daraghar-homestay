@@ -15,7 +15,7 @@ export default function Navigation() {
   const handleSectionClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
     e.preventDefault()
     setIsOpen(false)
-    
+
     if (isHomePage) {
       // If on home page, scroll to section
       const element = document.getElementById(sectionId)
@@ -54,7 +54,7 @@ export default function Navigation() {
     }
   }, [isHomePage])
 
-  type NavItem = 
+  type NavItem =
     | { label: string; href: string; isSection: false }
     | { label: string; href: string; isSection: true; sectionId: string }
 
@@ -76,7 +76,7 @@ export default function Navigation() {
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-primary-foreground font-bold text-lg shadow-lg">
               D
             </div>
-            <span className="hidden sm:inline-block text-lg font-bold text-primary">Daraghar Maila</span>
+            <span className="hidden sm:inline-block text-lg font-bold text-primary">DARAMAILA FARMSTAY</span>
           </Link>
 
           {/* Desktop Menu */}
