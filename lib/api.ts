@@ -56,6 +56,13 @@ async function apiRequest<T>(
     const data = await response.json()
 
     if (!response.ok) {
+      console.error('API Error:', {
+        endpoint,
+        status: response.status,
+        statusText: response.statusText,
+        data,
+        requestBody: options.body,
+      })
       return {
         success: false,
         error: data.message || `HTTP error! status: ${response.status}`,
@@ -69,6 +76,11 @@ async function apiRequest<T>(
       message: data.message,
     }
   } catch (error) {
+    console.error('API Request Failed:', {
+      endpoint,
+      error,
+      requestBody: options.body,
+    })
     return {
       success: false,
       error: error instanceof Error ? error.message : 'An unexpected error occurred',
