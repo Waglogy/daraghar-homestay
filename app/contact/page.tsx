@@ -19,24 +19,113 @@ export default function ContactPage() {
     subject: '',
     message: '',
   })
+  const [errors, setErrors] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [showGalleryPopup, setShowGalleryPopup] = useState(false)
+
+  const validateField = (name: string, value: string): string => {
+    switch (name) {
+      case 'name':
+        if (value.trim().length < 3) {
+          return 'Name must be at least 3 characters long'
+        }
+        if (value.trim().length > 50) {
+          return 'Name must not exceed 50 characters'
+        }
+        if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+          return 'Name should only contain letters and spaces'
+        }
+        return ''
+
+      case 'email':
+        if (!value.trim()) {
+          return 'Email is required'
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(value.trim())) {
+          return 'Please enter a valid email address'
+        }
+        return ''
+
+      case 'subject':
+        if (value.trim().length < 3) {
+          return 'Subject must be at least 3 characters long'
+        }
+        if (value.trim().length > 100) {
+          return 'Subject must not exceed 100 characters'
+        }
+        return ''
+
+      case 'message':
+        if (value.trim().length < 10) {
+          return 'Message must be at least 10 characters long'
+        }
+        if (value.trim().length > 1000) {
+          return 'Message must not exceed 1000 characters'
+        }
+        return ''
+
+      default:
+        return ''
+    }
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setContactForm(prev => ({ ...prev, [name]: value }))
+
+    // Clear error when user starts typing
+    if (errors[name as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    const error = validateField(name, value)
+    setErrors(prev => ({ ...prev, [name]: error }))
+  }
+
+  const validateForm = (): boolean => {
+    const newErrors = {
+      name: validateField('name', contactForm.name),
+      email: validateField('email', contactForm.email),
+      subject: validateField('subject', contactForm.subject),
+      message: validateField('message', contactForm.message),
+    }
+
+    setErrors(newErrors)
+
+    // Check if there are any errors
+    return !Object.values(newErrors).some(error => error !== '')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validate all fields before submission
+    if (!validateForm()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please fix the errors in the form before submitting.',
+        variant: 'destructive',
+      })
+      return
+    }
+
     setIsLoading(true)
 
     try {
       const result = await contactApi.create({
-        fullName: contactForm.name,
-        email: contactForm.email,
-        subject: contactForm.subject,
-        message: contactForm.message,
+        fullName: contactForm.name.trim(),
+        email: contactForm.email.trim(),
+        subject: contactForm.subject.trim(),
+        message: contactForm.message.trim(),
       })
 
       if (result.success) {
@@ -45,6 +134,12 @@ export default function ContactPage() {
           description: 'We have received your message and will get back to you soon.',
         })
         setContactForm({
+          name: '',
+          email: '',
+          subject: '',
+          message: '',
+        })
+        setErrors({
           name: '',
           email: '',
           subject: '',
@@ -157,10 +252,18 @@ export default function ContactPage() {
                         name="name"
                         value={contactForm.name}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
-                        className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        className={`w-full px-4 py-2 rounded-lg border ${errors.name ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary'
+                          } bg-input text-foreground focus:outline-none focus:ring-2`}
                         placeholder="Your name"
                       />
+                      {errors.name && (
+                        <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {contactForm.name.length}/50 characters
+                      </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">Email Address *</label>
@@ -169,10 +272,15 @@ export default function ContactPage() {
                         name="email"
                         value={contactForm.email}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
-                        className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        className={`w-full px-4 py-2 rounded-lg border ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary'
+                          } bg-input text-foreground focus:outline-none focus:ring-2`}
                         placeholder="your@email.com"
                       />
+                      {errors.email && (
+                        <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">Subject *</label>
@@ -181,10 +289,18 @@ export default function ContactPage() {
                         name="subject"
                         value={contactForm.subject}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
-                        className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        className={`w-full px-4 py-2 rounded-lg border ${errors.subject ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary'
+                          } bg-input text-foreground focus:outline-none focus:ring-2`}
                         placeholder="How can we help?"
                       />
+                      {errors.subject && (
+                        <p className="text-red-500 text-xs mt-1">{errors.subject}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {contactForm.subject.length}/100 characters
+                      </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">Message *</label>
@@ -192,11 +308,19 @@ export default function ContactPage() {
                         name="message"
                         value={contactForm.message}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
                         rows={6}
-                        className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        className={`w-full px-4 py-2 rounded-lg border ${errors.message ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary'
+                          } bg-input text-foreground focus:outline-none focus:ring-2`}
                         placeholder="Your message here..."
                       />
+                      {errors.message && (
+                        <p className="text-red-500 text-xs mt-1">{errors.message}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {contactForm.message.length}/1000 characters
+                      </p>
                     </div>
                     <Button
                       type="submit"
