@@ -69,7 +69,7 @@ export default function PaymentsPage() {
       setIsLoading(true)
       const status = filterStatus === 'all' ? undefined : filterStatus
       const result = await paymentApi.getAll({ status, page: 1, limit: 100 })
-      
+
       if (result.success && result.data) {
         const paymentsData = Array.isArray(result.data) ? result.data : result.data.payments || []
         setPayments(paymentsData.map((payment: any) => {
@@ -198,7 +198,7 @@ export default function PaymentsPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this payment record?')) return
-    
+
     setActionLoading(id)
     try {
       const result = await paymentApi.delete(id)
@@ -254,7 +254,7 @@ export default function PaymentsPage() {
                 <Input
                   value={newPayment.bookingId}
                   onChange={(e) => setNewPayment({ ...newPayment, bookingId: e.target.value })}
-                  placeholder="BK001"
+                  placeholder="Enter booking ID"
                 />
               </div>
               <div>
@@ -262,7 +262,7 @@ export default function PaymentsPage() {
                 <Input
                   value={newPayment.guestName}
                   onChange={(e) => setNewPayment({ ...newPayment, guestName: e.target.value })}
-                  placeholder="Guest name"
+                  placeholder="Enter guest name"
                 />
               </div>
               <div>

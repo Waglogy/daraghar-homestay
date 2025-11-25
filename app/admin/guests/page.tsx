@@ -66,7 +66,7 @@ export default function GuestsPage() {
     try {
       setIsLoading(true)
       const result = await guestApi.getAll({ page: 1, limit: 100 })
-      
+
       if (result.success && result.data) {
         const guestsData = Array.isArray(result.data) ? result.data : result.data.guests || []
         setGuests(guestsData.map((guest: any) => ({
@@ -166,7 +166,7 @@ export default function GuestsPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this guest?')) return
-    
+
     setActionLoading(id)
     try {
       const result = await guestApi.delete(id)
@@ -222,7 +222,7 @@ export default function GuestsPage() {
                 <Input
                   value={newGuest.name}
                   onChange={(e) => setNewGuest({ ...newGuest, name: e.target.value })}
-                  placeholder="Guest name"
+                  placeholder="Enter guest name"
                 />
               </div>
               <div>
@@ -231,7 +231,7 @@ export default function GuestsPage() {
                   type="email"
                   value={newGuest.email}
                   onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })}
-                  placeholder="guest@example.com"
+                  placeholder="Enter email address"
                 />
               </div>
               <div>
@@ -240,7 +240,7 @@ export default function GuestsPage() {
                   type="tel"
                   value={newGuest.phone}
                   onChange={(e) => setNewGuest({ ...newGuest, phone: e.target.value })}
-                  placeholder="+91 9876543210"
+                  placeholder="Enter phone number"
                 />
               </div>
               <div>

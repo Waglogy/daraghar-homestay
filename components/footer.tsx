@@ -75,7 +75,7 @@ export default function Footer() {
             <div className="flex gap-2">
               <input
                 type="email"
-                placeholder="Your email"
+                placeholder="Enter your email"
                 className="flex-1 px-4 py-2 rounded-lg bg-primary/20 text-foreground placeholder:text-background/60 border border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary"
               />
               <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-6">

@@ -22,6 +22,15 @@ export default function BookingPage() {
     phone: '',
     specialRequests: '',
   })
+  const [errors, setErrors] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    checkIn: '',
+    checkOut: '',
+    guests: '',
+    specialRequests: '',
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [showGalleryPopup, setShowGalleryPopup] = useState(false)
 
@@ -59,9 +68,124 @@ export default function BookingPage() {
     }
   }, [toast])
 
+  const validateField = (name: string, value: string): string => {
+    switch (name) {
+      case 'name':
+        if (value.trim().length < 3) {
+          return 'Name must be at least 3 characters long'
+        }
+        if (value.trim().length > 50) {
+          return 'Name must not exceed 50 characters'
+        }
+        if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+          return 'Name should only contain letters and spaces'
+        }
+        return ''
+
+      case 'email':
+        if (!value.trim()) {
+          return 'Email is required'
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(value.trim())) {
+          return 'Please enter a valid email address'
+        }
+        return ''
+
+      case 'phone':
+        if (!value.trim()) {
+          return 'Phone number is required'
+        }
+        // Remove spaces, dashes, and +91 prefix for validation
+        const cleanPhone = value.replace(/[\s\-+]/g, '').replace(/^91/, '')
+        if (!/^\d{10}$/.test(cleanPhone)) {
+          return 'Please enter a valid 10-digit phone number'
+        }
+        return ''
+
+      case 'checkIn':
+        if (!value) {
+          return 'Check-in date is required'
+        }
+        const checkInDate = new Date(value)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        if (checkInDate < today) {
+          return 'Check-in date cannot be in the past'
+        }
+        return ''
+
+      case 'checkOut':
+        if (!value) {
+          return 'Check-out date is required'
+        }
+        if (formData.checkIn && value) {
+          const checkIn = new Date(formData.checkIn)
+          const checkOut = new Date(value)
+          if (checkOut <= checkIn) {
+            return 'Check-out date must be after check-in date'
+          }
+        }
+        return ''
+
+      case 'guests':
+        const guestCount = parseInt(value)
+        if (isNaN(guestCount) || guestCount < 1) {
+          return 'At least 1 guest is required'
+        }
+        if (guestCount > 20) {
+          return 'Maximum 20 guests allowed. For larger groups, please contact us directly.'
+        }
+        return ''
+
+      case 'specialRequests':
+        if (value.trim().length > 500) {
+          return 'Special requests must not exceed 500 characters'
+        }
+        return ''
+
+      default:
+        return ''
+    }
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+
+    // Clear error when user starts typing
+    if (errors[name as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+
+    // Re-validate check-out date when check-in changes
+    if (name === 'checkIn' && formData.checkOut) {
+      const checkOutError = validateField('checkOut', formData.checkOut)
+      setErrors(prev => ({ ...prev, checkOut: checkOutError }))
+    }
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    const error = validateField(name, value)
+    setErrors(prev => ({ ...prev, [name]: error }))
+  }
+
+  const validateForm = (): boolean => {
+    const newErrors = {
+      name: validateField('name', formData.name),
+      email: validateField('email', formData.email),
+      phone: validateField('phone', formData.phone),
+      checkIn: validateField('checkIn', formData.checkIn),
+      checkOut: validateField('checkOut', formData.checkOut),
+      guests: validateField('guests', formData.guests),
+      specialRequests: validateField('specialRequests', formData.specialRequests),
+    }
+
+    setErrors(newErrors)
+
+    // Check if there are any errors
+    return !Object.values(newErrors).some(error => error !== '')
   }
 
   const getAccommodationType = (value: string) => {
@@ -75,18 +199,29 @@ export default function BookingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validate all fields before submission
+    if (!validateForm()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please fix the errors in the form before submitting.',
+        variant: 'destructive',
+      })
+      return
+    }
+
     setIsLoading(true)
 
     try {
       const result = await bookingApi.create({
-        fullName: formData.name,
-        email: formData.email,
-        phoneNumber: formData.phone,
+        fullName: formData.name.trim(),
+        email: formData.email.trim(),
+        phoneNumber: formData.phone.trim(),
         checkInDate: formData.checkIn,
         checkOutDate: formData.checkOut,
         numberOfGuests: parseInt(formData.guests) || 2,
         accommodationType: getAccommodationType(formData.accommodation),
-        specialRequests: formData.specialRequests || undefined,
+        specialRequests: formData.specialRequests.trim() || undefined,
       })
 
       if (result.success) {
@@ -104,6 +239,15 @@ export default function BookingPage() {
           name: '',
           email: '',
           phone: '',
+          specialRequests: '',
+        })
+        setErrors({
+          name: '',
+          email: '',
+          phone: '',
+          checkIn: '',
+          checkOut: '',
+          guests: '',
           specialRequests: '',
         })
         // Show gallery popup after a short delay
@@ -159,10 +303,18 @@ export default function BookingPage() {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
-                        className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="John Doe"
+                        className={`w-full px-4 py-2 rounded-lg border ${errors.name ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary'
+                          } bg-input text-foreground focus:outline-none focus:ring-2`}
+                        placeholder="Enter your full name"
                       />
+                      {errors.name && (
+                        <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {formData.name.length}/50 characters
+                      </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">Email Address *</label>
@@ -171,10 +323,15 @@ export default function BookingPage() {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
-                        className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="john@example.com"
+                        className={`w-full px-4 py-2 rounded-lg border ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary'
+                          } bg-input text-foreground focus:outline-none focus:ring-2`}
+                        placeholder="Enter your email address"
                       />
+                      {errors.email && (
+                        <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                      )}
                     </div>
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-foreground mb-2">Phone Number *</label>
@@ -183,10 +340,15 @@ export default function BookingPage() {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
-                        className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="+91 9876543210"
+                        className={`w-full px-4 py-2 rounded-lg border ${errors.phone ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary'
+                          } bg-input text-foreground focus:outline-none focus:ring-2`}
+                        placeholder="Enter your phone number"
                       />
+                      {errors.phone && (
+                        <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -202,9 +364,15 @@ export default function BookingPage() {
                         name="checkIn"
                         value={formData.checkIn}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
-                        className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        min={new Date().toISOString().split('T')[0]}
+                        className={`w-full px-4 py-2 rounded-lg border ${errors.checkIn ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary'
+                          } bg-input text-foreground focus:outline-none focus:ring-2`}
                       />
+                      {errors.checkIn && (
+                        <p className="text-red-500 text-xs mt-1">{errors.checkIn}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">Check-out Date *</label>
@@ -213,9 +381,15 @@ export default function BookingPage() {
                         name="checkOut"
                         value={formData.checkOut}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
-                        className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        min={formData.checkIn || new Date().toISOString().split('T')[0]}
+                        className={`w-full px-4 py-2 rounded-lg border ${errors.checkOut ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary'
+                          } bg-input text-foreground focus:outline-none focus:ring-2`}
                       />
+                      {errors.checkOut && (
+                        <p className="text-red-500 text-xs mt-1">{errors.checkOut}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">Number of Guests *</label>
@@ -223,11 +397,17 @@ export default function BookingPage() {
                         type="number"
                         name="guests"
                         min="1"
+                        max="20"
                         value={formData.guests}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
-                        className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        className={`w-full px-4 py-2 rounded-lg border ${errors.guests ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary'
+                          } bg-input text-foreground focus:outline-none focus:ring-2`}
                       />
+                      {errors.guests && (
+                        <p className="text-red-500 text-xs mt-1">{errors.guests}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">Accommodation Type *</label>
@@ -254,10 +434,18 @@ export default function BookingPage() {
                       name="specialRequests"
                       value={formData.specialRequests}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       rows={4}
-                      className="w-full px-4 py-2 rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      className={`w-full px-4 py-2 rounded-lg border ${errors.specialRequests ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary'
+                        } bg-input text-foreground focus:outline-none focus:ring-2`}
                       placeholder="Any special dietary needs, accessibility requirements, or activities you'd like to arrange?"
                     />
+                    {errors.specialRequests && (
+                      <p className="text-red-500 text-xs mt-1">{errors.specialRequests}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {formData.specialRequests.length}/500 characters
+                    </p>
                   </div>
                 </div>
 

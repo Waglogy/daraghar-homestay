@@ -175,7 +175,7 @@ export default function TestimonialForm() {
               onBlur={(e) => handleBlur('name', e.target.value)}
               className={`w-full px-4 py-2 rounded-lg border ${errors.name ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary/50'
                 } bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2`}
-              placeholder="Your name"
+              placeholder="Enter your full name"
             />
             {errors.name && (
               <p className="text-red-500 text-xs mt-1">{errors.name}</p>
@@ -196,7 +196,7 @@ export default function TestimonialForm() {
               onBlur={(e) => handleBlur('email', e.target.value)}
               className={`w-full px-4 py-2 rounded-lg border ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary/50'
                 } bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2`}
-              placeholder="your@email.com"
+              placeholder="Enter your email address"
             />
             {errors.email && (
               <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -216,7 +216,7 @@ export default function TestimonialForm() {
             onBlur={(e) => handleBlur('location', e.target.value)}
             className={`w-full px-4 py-2 rounded-lg border ${errors.location ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary/50'
               } bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2`}
-            placeholder="Your city"
+            placeholder="Enter your city"
           />
           {errors.location && (
             <p className="text-red-500 text-xs mt-1">{errors.location}</p>
@@ -263,7 +263,7 @@ export default function TestimonialForm() {
             onBlur={(e) => handleBlur('message', e.target.value)}
             className={`w-full px-4 py-2 rounded-lg border ${errors.message ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-primary/50'
               } bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 resize-none`}
-            placeholder="Share your experience, highlights, and recommendations..."
+            placeholder="Share your experience and recommendations..."
             rows={6}
           />
           {errors.message && (
