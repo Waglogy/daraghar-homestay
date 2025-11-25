@@ -105,8 +105,8 @@ export default function ContactPage() {
                 {
                   icon: Mail,
                   title: 'Email',
-                  content: 'info@daragharmaila.com',
-                  href: 'mailto:info@daragharmaila.com',
+                  content: 'info@daramailafarmstay.com',
+                  href: 'mailto:info@daramailafarmstay.com',
                 },
                 {
                   icon: Clock,

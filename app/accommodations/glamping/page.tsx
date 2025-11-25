@@ -11,7 +11,7 @@ export default function GlampingPage() {
   return (
     <main className="min-h-screen bg-background">
       <Navigation />
-      
+
       <div className="pt-32 pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
@@ -39,7 +39,7 @@ export default function GlampingPage() {
               <div>
                 <h2 className="text-2xl font-bold mb-4">About Our Glamping Tents</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  Experience the perfect blend of adventure and comfort at Daraghar Maila. Our luxury glamping tents are designed to provide an unforgettable stay surrounded by pristine mountain beauty. Each tent is meticulously appointed with modern amenities while maintaining an authentic connection to nature.
+                  Experience the perfect blend of adventure and comfort at DARAMAILA FARMSTAY. Our luxury glamping tents are designed to provide an unforgettable stay surrounded by pristine mountain beauty. Each tent is meticulously appointed with modern amenities while maintaining an authentic connection to nature.
                 </p>
               </div>
 

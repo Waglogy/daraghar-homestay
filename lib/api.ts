@@ -176,7 +176,7 @@ export const reviewApi = {
     if (params?.limit) queryParams.append('limit', params.limit.toString())
 
     const query = queryParams.toString()
-    return apiRequest(`/review/approved${query ? `?${query}` : ''}`, {
+    return apiRequest<any>(`/review/approved${query ? `?${query}` : ''}`, {
       method: 'GET',
     })
   },
@@ -188,7 +188,7 @@ export const reviewApi = {
     if (params?.limit) queryParams.append('limit', params.limit.toString())
 
     const query = queryParams.toString()
-    return apiRequest(`/review${query ? `?${query}` : ''}`, {
+    return apiRequest<any>(`/review${query ? `?${query}` : ''}`, {
       method: 'GET',
     })
   },
@@ -256,7 +256,7 @@ export const bookingApi = {
     if (params?.limit) queryParams.append('limit', params.limit.toString())
 
     const query = queryParams.toString()
-    return apiRequest(`/booking${query ? `?${query}` : ''}`, {
+    return apiRequest<any>(`/booking${query ? `?${query}` : ''}`, {
       method: 'GET',
     })
   },
@@ -318,7 +318,7 @@ export const guestApi = {
     if (params?.limit) queryParams.append('limit', params.limit.toString())
 
     const query = queryParams.toString()
-    return apiRequest(`/guest${query ? `?${query}` : ''}`, {
+    return apiRequest<any>(`/guest${query ? `?${query}` : ''}`, {
       method: 'GET',
     })
   },
@@ -374,7 +374,7 @@ export const paymentApi = {
     if (params?.limit) queryParams.append('limit', params.limit.toString())
 
     const query = queryParams.toString()
-    return apiRequest(`/payment${query ? `?${query}` : ''}`, {
+    return apiRequest<any>(`/payment${query ? `?${query}` : ''}`, {
       method: 'GET',
     })
   },
